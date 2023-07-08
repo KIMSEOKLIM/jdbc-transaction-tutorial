@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         version="3.0">
+
+    <servlet>
+        <servlet-name>LoginForm</servlet-name>
+        <servlet-class>kr.co.mz.tutorial.servlet.LoginForm</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>LoginForm</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>JoinForm</servlet-name>
+        <servlet-class>kr.co.mz.tutorial.servlet.JoinForm</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>JoinForm</servlet-name>
+        <url-pattern>/join</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LoginHandler</servlet-name>
+        <servlet-class>kr.co.mz.tutorial.servlet.loginHandler.LoginHandler</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>LoginHandler</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>BoardHandler</servlet-name>
+        <servlet-class>kr.co.mz.tutorial.servlet.BoardForm</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>BoardHandler</servlet-name>
+        <url-pattern>/board</url-pattern>
+    </servlet-mapping>
+
+
+</web-app>
