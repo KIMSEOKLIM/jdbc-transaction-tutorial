@@ -26,7 +26,7 @@
 
     <servlet>
         <servlet-name>LoginHandler</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.loginHandler.LoginHandler</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.servlet.handler.CommentHandler</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -44,5 +44,24 @@
         <url-pattern>/board</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>ContentForm</servlet-name>
+        <servlet-class>kr.co.mz.tutorial.servlet.ContentForm</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ContentForm</servlet-name>
+        <url-pattern>/content</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CommentHandler</servlet-name>
+        <servlet-class>kr.co.mz.tutorial.servlet.handler.CommentHandler</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CommentHandler</servlet-name>
+        <url-pattern>/addComment</url-pattern>
+    </servlet-mapping>
 
 </web-app>

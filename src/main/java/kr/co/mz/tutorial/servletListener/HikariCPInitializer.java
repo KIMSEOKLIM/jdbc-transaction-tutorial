@@ -4,23 +4,25 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class HikariCPInitializer {
+    private static final DataSource dataSource;
 
-
-    public static Connection getConnection() throws IOException, SQLException {
+    static {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:mysql://localhost:3306/webchat?serverTimezone=UTC&characterEncoding=UTF-8");
         config.setUsername("webchat");
         config.setPassword("webchat!");
-        config.setDriverClassName("com.mysql.jdbc.Driver"); // ????
+        config.setMaximumPoolSize(50);
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
-        DataSource dataSource = new HikariDataSource(config);
-        Connection connection = dataSource.getConnection();
+        dataSource = new HikariDataSource(config);
+    }
 
-        return connection;
+    public static Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 }
+

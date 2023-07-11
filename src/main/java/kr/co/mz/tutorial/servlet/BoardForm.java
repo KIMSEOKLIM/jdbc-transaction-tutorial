@@ -15,31 +15,34 @@ import java.util.ArrayList;
 
 public class BoardForm extends HttpServlet {
 
-    private static final String SELECT_BOARD_ALL = "select c.customer_id, b.title, b.evaluation_total, b.created_time, b.modified_time from board b join customer c on b.customer_seq = c.seq";
+    private static final String SELECT_BOARD_ALL = "select b.seq, c.customer_id, b.title, b.evaluation_total, b.created_time, b.modified_time from board b join customer c on b.customer_seq = c.seq";
 
     @Override
     protected void doGet(HttpServletRequest requset, HttpServletResponse response) throws ServletException, IOException {
 
+        int customerSeq = Integer.parseInt(requset.getParameter("seq"));
         ArrayList<Board> boardData = new ArrayList<>();
 
-        try (
-                Connection connection = HikariCPInitializer.getConnection();
-                var preparedStatement = connection.prepareStatement(SELECT_BOARD_ALL);
-                var resultSet = preparedStatement.executeQuery();
-        ) {
+
+        try (Connection connection = HikariCPInitializer.getConnection()) {
+            var preparedStatement = connection.prepareStatement(SELECT_BOARD_ALL);
+            var resultSet = preparedStatement.executeQuery();
+
             while (resultSet.next()) {
                 Board board = new Board();
-                board.setCustomerId(resultSet.getString(1));
-                board.setTitle(resultSet.getString(2));
-                board.setEvaluationTotal(resultSet.getInt(3));
-                board.setCreatedTime(resultSet.getTimestamp(4));
-                board.setModifiedTime(resultSet.getTimestamp(5));
+
+                board.setSeq((resultSet.getInt(1)));
+                board.setCustomerId(resultSet.getString(2));
+                board.setTitle(resultSet.getString(3));
+                board.setEvaluationTotal(resultSet.getInt(4));
+                board.setCreatedTime(resultSet.getTimestamp(5));
+                board.setModifiedTime(resultSet.getTimestamp(6));
+
                 boardData.add(board);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
 
         response.setCharacterEncoding("UTF-8");
         // 응답 데이터 생성
@@ -89,7 +92,7 @@ public class BoardForm extends HttpServlet {
         for (Board board : boardData) {
             out.println("<tr>");
             out.println("<td>" + board.getCustomerId() + "</td>");
-            out.println("<td><a href=\"/board?id=" + board.getTitle() + "\">" + board.getTitle() + "</a></td>");
+            out.println("<td><a href=\"/content?boardSeq=" + board.getSeq() + "&customerSeq=" + customerSeq + "\">" + board.getTitle() + "</a></td>");
             out.println("<td>" + board.getEvaluationTotal() + "</td>");
             out.println("<td>" + board.getCreatedTime() + "</td>");
             out.println("<td>" + board.getModifiedTime() + "</td>");

@@ -25,9 +25,9 @@ public class LoginForm extends HttpServlet { // MyServlet 클래스는 HttpServl
         String address = request.getParameter("address");
         String email = request.getParameter("email");
 
-        try {
-            Connection connection = HikariCPInitializer.getConnection();
+        try (Connection connection = HikariCPInitializer.getConnection()) {
             var preparedStatement = connection.prepareStatement(QUERY);
+
             preparedStatement.setString(1, id);
             preparedStatement.setString(2, password);
             preparedStatement.setString(3, name);

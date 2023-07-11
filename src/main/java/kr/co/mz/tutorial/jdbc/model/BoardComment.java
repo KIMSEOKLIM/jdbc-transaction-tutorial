@@ -6,8 +6,19 @@ public class BoardComment extends AbstractModel {
     private int customerSeq;
     private int board_seq;
 
+    private String customerId;
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
+    }
+
     public BoardComment() {
     }
+
 
     public BoardComment(String content, int customerSeq, int board_seq) {
         this.content = content;
