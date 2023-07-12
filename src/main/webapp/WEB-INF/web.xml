@@ -14,6 +14,16 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
+    <!--    <servlet>-->
+    <!--        <servlet-name>customerInsert</servlet-name>-->
+    <!--        <servlet-class>kr.co.mz.tutorial.jdbc.dao.CustomerDao</servlet-class>-->
+    <!--    </servlet>-->
+
+    <!--    <servlet-mapping>-->
+    <!--        <servlet-name>customerInsert</servlet-name>-->
+    <!--        <url-pattern>/customerInsert</url-pattern>-->
+    <!--    </servlet-mapping>-->
+
     <servlet>
         <servlet-name>JoinForm</servlet-name>
         <servlet-class>kr.co.mz.tutorial.servlet.JoinForm</servlet-class>
@@ -26,7 +36,7 @@
 
     <servlet>
         <servlet-name>LoginHandler</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.handler.CommentHandler</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.servlet.handler.LoginHandler</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -35,13 +45,13 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>BoardHandler</servlet-name>
+        <servlet-name>BoardForm</servlet-name>
         <servlet-class>kr.co.mz.tutorial.servlet.BoardForm</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>BoardHandler</servlet-name>
-        <url-pattern>/board</url-pattern>
+        <servlet-name>BoardForm</servlet-name>
+        <url-pattern>/posts</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -51,7 +61,7 @@
 
     <servlet-mapping>
         <servlet-name>ContentForm</servlet-name>
-        <url-pattern>/content</url-pattern>
+        <url-pattern>/posts/</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -64,4 +74,27 @@
         <url-pattern>/addComment</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>WriteBoard</servlet-name>
+        <servlet-class>kr.co.mz.tutorial.servlet.WriteBoardForm</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>WriteBoard</servlet-name>
+        <url-pattern>/posts/write</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Evaluation</servlet-name>
+        <servlet-class>kr.co.mz.tutorial.servlet.handler.EvaluaiontHandler</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Evaluaiont</servlet-name>
+        <url-pattern>/evaluation</url-pattern>
+    </servlet-mapping>
+
+    <listener>
+        <listener-class>kr.co.mz.tutorial.servletListener.HikariCPInitializer</listener-class>
+    </listener>
 </web-app>

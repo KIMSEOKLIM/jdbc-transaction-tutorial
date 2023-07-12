@@ -1,57 +1,45 @@
 package kr.co.mz.tutorial.servlet;
 
+import kr.co.mz.tutorial.jdbc.dao.BoardCommentDao;
+import kr.co.mz.tutorial.jdbc.dao.BoardDao;
 import kr.co.mz.tutorial.jdbc.model.Board;
 import kr.co.mz.tutorial.jdbc.model.BoardComment;
-import kr.co.mz.tutorial.servletListener.HikariCPInitializer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ContentForm extends HttpServlet {
 
-    private static final String CONTENT_QUERY = "SELECT c.customer_id, b.title, b.content FROM board b JOIN customer c ON b.customer_seq = c.seq WHERE b.seq = ?";
-    private static final String COMMENT_QUERY = "SELECT b.customer_seq, b.content, c.customer_id FROM board_comment b JOIN customer c ON b.customer_seq = c.seq WHERE board_seq = ?";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        int boardSeq = Integer.parseInt(request.getParameter("boardSeq"));
-        int customerSeq = Integer.parseInt(request.getParameter("customerSeq"));
-        Board board = new Board();
-        List<BoardComment> commentList = new ArrayList<>();
+        int boardSeq = Integer.parseInt(request.getParameter("id"));
+        int customerSeq = (int) getServletContext().getAttribute("seq");
+        var dataSource = (DataSource) getServletContext().getAttribute("dataSource");
 
-        try (Connection connection = HikariCPInitializer.getConnection()) {
-            var preparedStatement_content = connection.prepareStatement(CONTENT_QUERY);
-            preparedStatement_content.setInt(1, boardSeq);
-            var resultSet = preparedStatement_content.executeQuery();
-            while (resultSet.next()) {
-                board.setCustomerId(resultSet.getString(1));
-                board.setTitle(resultSet.getString(2));
-                board.setContent(resultSet.getString(3));
-            }
-
-            var preparedStatementComment = connection.prepareStatement(COMMENT_QUERY);
-            preparedStatementComment.setInt(1, boardSeq);
-            var resultSetComment = preparedStatementComment.executeQuery();
-            while (resultSetComment.next()) {
-                BoardComment boardComment = new BoardComment();
-                boardComment.setCustomerSeq(resultSetComment.getInt(1));
-                boardComment.setContent(resultSetComment.getString(2));
-                boardComment.setCustomerId(resultSetComment.getString(3));
-                commentList.add(boardComment);
-            }
+        Board board;
+        BoardDao boardDao;
+        BoardCommentDao boardCommentDao;
+        List<BoardComment> commentList;
+        try {
+            boardDao = new BoardDao(dataSource);
+            board = boardDao.findOne(boardSeq);
+            boardCommentDao = new BoardCommentDao(dataSource);
+            commentList = boardCommentDao.view(boardSeq);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        response.setContentType("text/html;charset=UTF-8");
+
+        response.setContentType("text/html");
+        response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         out.println("<html>");
         out.println("<head>");
@@ -110,6 +98,7 @@ public class ContentForm extends HttpServlet {
         out.println("<h2>글쓴이: " + board.getCustomerId() + "</h2>");
         out.println("<p>제목: " + board.getTitle() + "</p>");
         out.println("<p>내용: " + board.getContent() + "</p>");
+        out.println("<td><a href=\"/evaluation?id=" + boardSeq + "\">글추천</a></td>");
         out.println("<h3>댓글</h3>");
         for (BoardComment comment : commentList) {
             out.println("<div class=\"comment\">");

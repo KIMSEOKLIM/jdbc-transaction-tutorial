@@ -1,23 +1,22 @@
 package kr.co.mz.tutorial.servlet;
 
-import kr.co.mz.tutorial.servletListener.HikariCPInitializer;
+import kr.co.mz.tutorial.jdbc.dao.CustomerDao;
+import kr.co.mz.tutorial.jdbc.model.Customer;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
 import java.sql.SQLException;
 
 public class LoginForm extends HttpServlet { // MyServlet 클래스는 HttpServlet 클래스를 상속합니다. 이는 Java Servlet API의 일부이며, 서블릿을 작성하기 위해 필요한 기능을 제공합니다. //HttpServlet이 없으면 web.xml에서 url 인식 못하나?
 
 
-    private static final String QUERY = "insert into customer (customer_id, password, name, address, email) values (?, ?, ?, ?, ?)";
-
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        var dataSource = (DataSource) getServletContext().getAttribute("dataSource");
 
         String id = request.getParameter("id");
         String password = request.getParameter("password");
@@ -25,20 +24,15 @@ public class LoginForm extends HttpServlet { // MyServlet 클래스는 HttpServl
         String address = request.getParameter("address");
         String email = request.getParameter("email");
 
-        try (Connection connection = HikariCPInitializer.getConnection()) {
-            var preparedStatement = connection.prepareStatement(QUERY);
-
-            preparedStatement.setString(1, id);
-            preparedStatement.setString(2, password);
-            preparedStatement.setString(3, name);
-            preparedStatement.setString(4, address);
-            preparedStatement.setString(5, email);
-            preparedStatement.execute();
+        Customer customer = new Customer(id, password, name, address, email);
+        try {
+            CustomerDao customerDao = new CustomerDao(customer, dataSource);
+            customerDao.customerInsert();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        response.sendRedirect("/"); // 302로
+        response.sendRedirect("/");
     }
 
     @Override
