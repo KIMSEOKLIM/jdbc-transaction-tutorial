@@ -2,7 +2,6 @@ package kr.co.mz.tutorial.jdbc.dao;
 
 import kr.co.mz.tutorial.jdbc.model.Board;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,8 +15,8 @@ public class BoardDao {
 
     private final Connection connection;
 
-    public BoardDao(DataSource dataSource) throws SQLException {
-        this.connection = dataSource.getConnection();
+    public BoardDao(Connection connection) throws SQLException {
+        this.connection = connection;
     }
 
     public ArrayList<Board> findAll() throws SQLException {
@@ -53,7 +52,7 @@ public class BoardDao {
         return board;
     }
 
-    public void insert(String title, String content, int customerSeq) throws SQLException {
+    public void create(String title, String content, int customerSeq) throws SQLException {
         var preparedStatementInsert = connection.prepareStatement(INSERT_CONTENT_QUERY);
         preparedStatementInsert.setString(1, title);
         preparedStatementInsert.setString(2, content);

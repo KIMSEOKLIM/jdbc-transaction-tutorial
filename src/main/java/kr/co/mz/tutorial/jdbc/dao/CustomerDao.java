@@ -1,26 +1,33 @@
 package kr.co.mz.tutorial.jdbc.dao;
 
+import kr.co.mz.tutorial.DatabaseAccessException;
 import kr.co.mz.tutorial.jdbc.model.Customer;
 
-import javax.servlet.http.HttpServlet;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 
-public class CustomerDao extends HttpServlet { //Dao 객체 생성할때 생성자로 connection 바로 초기화??
+public class CustomerDao { //Dao 객체 생성할때 생성자로 connection 바로 초기화??
     private static final String INSERT_QUERY = "insert into customer (customer_id, password, name, address, email) values (?, ?, ?, ?, ?)";
     private static final String COMPARE_QUERY = "select 1, seq from customer where customer_id = ? and password = ?";
 
-    private final Connection connection;
-    private final Customer customer;
+    private static final String POINT_QUERY = "update customer set point = point + 50 where seq = ?";
 
-    public CustomerDao(Customer customer, DataSource dataSource) throws SQLException {
-        this.connection = dataSource.getConnection();
+
+    private final Connection connection;
+    private Customer customer;
+
+    public CustomerDao(Connection connection) {
+        this.connection = connection;
+    }
+
+    public CustomerDao(Connection connection, Customer customer) throws SQLException {
+        this.connection = connection;
         this.customer = customer;
     }
 
 
-    public void customerInsert() throws SQLException {
+    public void join() throws SQLException {
         var preparedStatement = connection.prepareStatement(INSERT_QUERY);
 
         preparedStatement.setString(1, customer.getCustomerId());
@@ -46,5 +53,37 @@ public class CustomerDao extends HttpServlet { //Dao 객체 생성할때 생성�
         }
         return result;
 
+    }
+
+    public Optional<Customer> findByUsername(String username) {
+        final String query = "select * from customer where customer_id = ?";
+        try (var preparedStatement = connection.prepareStatement(query);) {
+            preparedStatement.setString(1, username);
+            var resultSet = preparedStatement.executeQuery();
+            Customer customer = null;
+            if (resultSet.next()) {
+                customer = Customer.fromResultSet(resultSet);
+            }
+            return Optional.ofNullable(customer);
+        } catch (SQLException sqle) {
+            throw new DatabaseAccessException("데이터베이스 관련 처리에 오류가 발생하였습니다.:" + sqle.getMessage(), sqle);
+        }
+    }
+
+    public int duplicateCheck(String username) throws SQLException {
+        final String query = "select 1 from customer where customer_id = ?";
+        var preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1, username);
+        var resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            return resultSet.getInt(1);
+        }
+        return 0;
+    }
+
+    public void plusPoint(int customerSeq) throws SQLException {
+        var preparedStatement = connection.prepareStatement(POINT_QUERY);
+        preparedStatement.setInt(1, customerSeq);
+        preparedStatement.execute();
     }
 }

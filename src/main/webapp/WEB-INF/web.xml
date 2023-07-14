@@ -6,7 +6,7 @@
 
     <servlet>
         <servlet-name>LoginForm</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.LoginForm</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.servlet.LoginServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -14,19 +14,9 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
-    <!--    <servlet>-->
-    <!--        <servlet-name>customerInsert</servlet-name>-->
-    <!--        <servlet-class>kr.co.mz.tutorial.jdbc.dao.CustomerDao</servlet-class>-->
-    <!--    </servlet>-->
-
-    <!--    <servlet-mapping>-->
-    <!--        <servlet-name>customerInsert</servlet-name>-->
-    <!--        <url-pattern>/customerInsert</url-pattern>-->
-    <!--    </servlet-mapping>-->
-
     <servlet>
         <servlet-name>JoinForm</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.JoinForm</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.servlet.JoinServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -65,18 +55,8 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>CommentHandler</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.handler.CommentHandler</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>CommentHandler</servlet-name>
-        <url-pattern>/addComment</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
         <servlet-name>WriteBoard</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.WriteBoardForm</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.servlet.WriteBoardServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -86,15 +66,25 @@
 
     <servlet>
         <servlet-name>Evaluation</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.handler.EvaluaiontHandler</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.servlet.EvaluationServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>Evaluaiont</servlet-name>
+        <servlet-name>Evaluation</servlet-name>
         <url-pattern>/evaluation</url-pattern>
     </servlet-mapping>
 
     <listener>
         <listener-class>kr.co.mz.tutorial.servletListener.HikariCPInitializer</listener-class>
     </listener>
+
+    <error-page>
+        <exception-type>kr.co.mz.tutorial.AlertException</exception-type>
+        <location>/WEB-INF/jsp/alert.jsp</location>
+    </error-page>
+
+    <error-page>
+        <error-code>500</error-code>
+        <location>/WEB-INF/jsp/error.jsp</location>
+    </error-page>
 </web-app>

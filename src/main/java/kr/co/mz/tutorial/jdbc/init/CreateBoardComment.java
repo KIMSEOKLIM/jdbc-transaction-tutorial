@@ -26,7 +26,7 @@ public class CreateBoardComment {
         ) {
             prepareStatement.setString(1, boardComment.getContent());
             prepareStatement.setInt(2, boardComment.getCustomerSeq());
-            prepareStatement.setInt(3, boardComment.getBoard_seq());
+            prepareStatement.setInt(3, boardComment.getBoardSeq());
             prepareStatement.execute();
             connection.commit();
         } catch (SQLException e) {

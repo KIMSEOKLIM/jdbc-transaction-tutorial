@@ -1,40 +1,55 @@
 package kr.co.mz.tutorial.servlet;
 
+import kr.co.mz.tutorial.DatabaseAccessException;
+import kr.co.mz.tutorial.InputValidationException;
+import kr.co.mz.tutorial.NetworkAndResponseException;
 import kr.co.mz.tutorial.jdbc.dao.BoardDao;
 import kr.co.mz.tutorial.jdbc.model.Board;
+import kr.co.mz.tutorial.jdbc.model.Customer;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import static kr.co.mz.tutorial.Constants.CUSTOMER_IN_SESSION;
+import static kr.co.mz.tutorial.Constants.DATASOURCE_CONTEXT_KEY;
+
 
 public class BoardForm extends HttpServlet {
 
 
-    @Override
-    protected void doGet(HttpServletRequest requset, HttpServletResponse response) throws ServletException, IOException {
-        ArrayList<Board> boardData;
-
-        var datasource = (DataSource) getServletContext().getAttribute("dataSource");
-        try {
-            BoardDao boardDao = new BoardDao(datasource);
-            boardData = boardDao.findAll();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    private ArrayList<Board> viewAll() {
+        var datasource = (DataSource) getServletContext().getAttribute(DATASOURCE_CONTEXT_KEY);
+        try (Connection connection = datasource.getConnection();) {
+            BoardDao boardDao = new BoardDao(connection);
+            return boardDao.findAll();
+        } catch (SQLException sqle) {
+            throw new DatabaseAccessException("데이터베이스 관련 처리에 오류가 발생하였습니다:" + sqle.getMessage(), sqle);
         }
+    }
 
+    @Override
+    protected void doGet(HttpServletRequest requset, HttpServletResponse response) {
+        ArrayList<Board> boardData = viewAll();
+        Customer customer = (Customer) requset.getSession().getAttribute(CUSTOMER_IN_SESSION);
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
+        PrintWriter out = null;
+        try {
+            out = response.getWriter();
+        } catch (IOException ioe) {
+            throw new NetworkAndResponseException("1. 클라이언트와의 네트워크 연결이 끊김, 2. 응답이 이미 커밋됨, 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
+        }
         out.println("<!DOCTYPE html>");
         out.println("<html>");
         out.println("<head>");
-        out.println("<title>게시판 목록</title>");
+        out.println("<title>게시판 목록" + "</title>");
         out.println("<style>");
         out.println("table {");
         out.println("    width: 100%;");
@@ -61,7 +76,7 @@ public class BoardForm extends HttpServlet {
         out.println("</style>");
         out.println("</head>");
         out.println("<body>");
-        out.println("<h2>게시판 목록</h2>");
+        out.println("<h2>게시판 목록 [접속자 : " + customer.getCustomerId() + "]" + "[포인트 : " + customer.getPoint() + "]</h2>");
         out.println("<table>");
         out.println("<tr>");
         out.println("<th>글쓴이</th>");
@@ -88,27 +103,48 @@ public class BoardForm extends HttpServlet {
         out.println("</html>");
     }
 
+
+    private static void validateInputParameter(String title, String content) {
+        if (title == null || title.length() < 5) {
+            throw new InputValidationException("제목은 다섯 글자 이상이어야 합니다.");
+        }
+        if (content == null || content.length() < 10) {
+            throw new InputValidationException("내용은 열 글자 이상이어야 합니다.");
+        }
+    }
+
+    private ArrayList<Board> writeAndViewAll(String title, String content, int customerSeq) {
+        try {
+            var dataSource = (DataSource) getServletContext().getAttribute(DATASOURCE_CONTEXT_KEY);
+            Connection connection = dataSource.getConnection();
+            BoardDao boardDao = new BoardDao(connection);
+            boardDao.create(title, content, customerSeq);
+            return boardDao.findAll();
+        } catch (SQLException sqle) {
+            throw new DatabaseAccessException("데이터베이스 관련 처리에 오류가 발생하였습니다:" + sqle.getMessage(), sqle);
+        }
+    }
+
     @Override
-    protected void doPost(HttpServletRequest requset, HttpServletResponse response) throws ServletException, IOException {
-        int customerSeq = (int) getServletContext().getAttribute("seq");
+    protected void doPost(HttpServletRequest requset, HttpServletResponse response) {
+        var customer = (Customer) requset.getSession().getAttribute(CUSTOMER_IN_SESSION);
+        int customerSeq = customer.getSeq();
         String title = requset.getParameter("title");
         String content = requset.getParameter("content");
-
         ArrayList<Board> boardData;
-        var dataSource = (DataSource) getServletContext().getAttribute("dataSource");
 
-        BoardDao boardDao = null;
-        try {
-            boardDao = new BoardDao(dataSource);
-            boardDao.insert(title, content, customerSeq);
-            boardData = boardDao.findAll();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        validateInputParameter(title, content);
+        boardData = writeAndViewAll(title, content, customerSeq);
+
 
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
+        PrintWriter out = null;
+        try {
+            out = response.getWriter();
+        } catch (IOException ioe) {
+            throw new NetworkAndResponseException("1. 클라이언트와의 네트워크 연결이 끊김, 2. 응답이 이미 커밋됨, 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
+        }
         out.println("<!DOCTYPE html>");
         out.println("<html>");
         out.println("<head>");

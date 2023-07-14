@@ -3,8 +3,10 @@ package kr.co.mz.tutorial.jdbc.model;
 public class BoardComment extends AbstractModel {
     private int seq;
     private String content;
+
+    private int boardCommentSeq;
     private int customerSeq;
-    private int board_seq;
+    private int boardSeq;
 
     private String customerId;
 
@@ -23,7 +25,15 @@ public class BoardComment extends AbstractModel {
     public BoardComment(String content, int customerSeq, int board_seq) {
         this.content = content;
         this.customerSeq = customerSeq;
-        this.board_seq = board_seq;
+        this.boardSeq = board_seq;
+    }
+
+    public int getBoardCommentSeq() {
+        return boardCommentSeq;
+    }
+
+    public void setBoardCommentSeq(int boardCommentSeq) {
+        this.boardCommentSeq = boardCommentSeq;
     }
 
     public int getSeq() {
@@ -50,11 +60,11 @@ public class BoardComment extends AbstractModel {
         this.customerSeq = customerSeq;
     }
 
-    public int getBoard_seq() {
-        return board_seq;
+    public int getBoardSeq() {
+        return boardSeq;
     }
 
-    public void setBoard_seq(int board_seq) {
-        this.board_seq = board_seq;
+    public void setBoardSeq(int boardSeq) {
+        this.boardSeq = boardSeq;
     }
 }

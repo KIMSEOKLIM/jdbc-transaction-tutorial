@@ -6,6 +6,9 @@ import com.zaxxer.hikari.HikariDataSource;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import static kr.co.mz.tutorial.Constants.DATASOURCE_CONTEXT_KEY;
+
+
 public class HikariCPInitializer implements ServletContextListener {
 
     @Override
@@ -18,12 +21,13 @@ public class HikariCPInitializer implements ServletContextListener {
         config.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
         var dataSource = new HikariDataSource(config);
-        servletContextEvent.getServletContext().setAttribute("dataSource", dataSource); // Dao에서 dataSource 불러와 connection한뒤에 dto에 값 담아서 dto객체를 서블릿으로 옮겨준다.
+        servletContextEvent.getServletContext().setAttribute(DATASOURCE_CONTEXT_KEY, dataSource); // Dao에서 dataSource 불러와 connection한뒤에 dto에 값 담아서 dto객체를 서블릿으로 옮겨준다.
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
-
+        var dataSource = (HikariDataSource) servletContextEvent.getServletContext().getAttribute(DATASOURCE_CONTEXT_KEY);
+        dataSource.close();
     }
 }
 
