@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BoardCommentDao {
-    //    private static final String COMMENT_QUERY = "SELECT b.customer_seq, b.content, c.customer_id FROM board_comment b JOIN customer c ON b.customer_seq = c.seq WHERE board_seq = ?";
     private static final String COMMENT_QUERY = "SELECT b.seq, b.customer_seq, b.content, b.board_comment_seq, c.customer_id, b.board_seq FROM board_comment b JOIN customer c ON b.customer_seq = c.seq WHERE board_seq = ?";
     private static final String COMMENT_INSERT_QUERY = "insert into board_comment (content, board_comment_seq, customer_seq, board_seq) values (?, ?, ?, ?)";
     private static final String COMMENT_REPLY_QUERY = "SELECT c.customer_id, b.content FROM board_comment b JOIN customer c ON b.customer_seq = c.seq WHERE board_seq = ? AND board_comment_seq = ?";
@@ -34,7 +33,9 @@ public class BoardCommentDao {
             boardComment.setBoardCommentSeq(resultSetComment.getInt(4));
             boardComment.setCustomerId(resultSetComment.getString(5));
             boardComment.setBoardSeq(resultSetComment.getInt(6));
-            commentList.add(boardComment);
+            if (boardComment.getBoardCommentSeq() == 0) {
+                commentList.add(boardComment);
+            }
         }
         return commentList;
     }
@@ -49,18 +50,21 @@ public class BoardCommentDao {
     }
 
 
-    public List<BoardComment> viewReply(String customerId, int commentSeq, String content, int boardCommentSeq, int customerSeq, int boardSeq) throws SQLException {
+    public List<BoardComment> viewReply(int seq, int boardCommentSeq, int boardSeq) throws SQLException {
         List<BoardComment> replyList = new ArrayList<>();
-        var preparedStatement = connection.prepareStatement(COMMENT_REPLY_QUERY);
-        preparedStatement.setInt(1, boardSeq);
-        preparedStatement.setInt(2, boardCommentSeq);
-        var resultSet = preparedStatement.executeQuery();
-        while (resultSet.next()) {
-            BoardComment boardComment = new BoardComment();
-            boardComment.setCustomerId(resultSet.getString(1));
-            boardComment.setContent(resultSet.getString(2));
-            replyList.add(boardComment);
+        if (boardCommentSeq == 0) {
+            var preparedStatement = connection.prepareStatement(COMMENT_REPLY_QUERY);
+            preparedStatement.setInt(1, boardSeq);
+            preparedStatement.setInt(2, seq);
+            var resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                BoardComment boardComment = new BoardComment();
+                boardComment.setCustomerId(resultSet.getString(1));
+                boardComment.setContent(resultSet.getString(2));
+                replyList.add(boardComment);
+            }
+            return replyList;
         }
-        return replyList;
+        return null;
     }
 }

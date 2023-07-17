@@ -1,6 +1,6 @@
-package kr.co.mz.tutorial.servlet;
+package kr.co.mz.tutorial.jdbc.servlet;
 
-import kr.co.mz.tutorial.NetworkAndResponseException;
+import kr.co.mz.tutorial.RuntimeServletException;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +17,7 @@ public class WriteBoardServlet extends HttpServlet {
         try {
             out = response.getWriter();
         } catch (IOException ioe) {
-            throw new NetworkAndResponseException("1. 클라이언트와의 네트워크 연결이 끊김, 2. 응답이 이미 커밋됨, 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
+            throw new RuntimeServletException("1. 클라이언트와의 네트워크 연결이 끊김, 2. 응답이 이미 커밋됨, 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
         }
 
         out.println("<!DOCTYPE html>");
@@ -29,7 +29,7 @@ public class WriteBoardServlet extends HttpServlet {
         out.println("</head>");
         out.println("<body>");
         out.println("<div class=\"container\">");
-        out.println("<form action=\"/posts\" method=\"POST\">");
+        out.println("<form action=\"/posts\" method=\"POST\" enctype=\"multipart/form-data\">");
         out.println("<div class=\"form-group\">");
         out.println("<label for=\"title\">제목:</label>");
         out.println("<input type=\"text\" id=\"title\" name=\"title\">");
@@ -37,6 +37,9 @@ public class WriteBoardServlet extends HttpServlet {
         out.println("<div class=\"form-group\">");
         out.println("<label for=\"content\">내용:</label>");
         out.println("<textarea id=\"content\" name=\"content\"></textarea>");
+        out.println("</div>");
+        out.println("<div class=\"form-group\">");
+        out.println("<input type=\"file\" id=\"file-input\" name=\"file\">");
         out.println("</div>");
         out.println("<div class=\"form-group\">");
         out.println("<input type=\"submit\" value=\"등록\">");

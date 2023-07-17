@@ -1,4 +1,4 @@
-package kr.co.mz.tutorial.servlet;
+package kr.co.mz.tutorial.jdbc.servlet;
 
 import kr.co.mz.tutorial.DatabaseAccessException;
 import kr.co.mz.tutorial.InputValidationException;

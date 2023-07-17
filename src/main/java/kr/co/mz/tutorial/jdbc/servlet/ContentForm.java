@@ -1,9 +1,9 @@
-package kr.co.mz.tutorial.servlet;
+package kr.co.mz.tutorial.jdbc.servlet;
 
 import kr.co.mz.tutorial.DatabaseAccessException;
 import kr.co.mz.tutorial.InputValidationException;
-import kr.co.mz.tutorial.NetworkAndResponseException;
 import kr.co.mz.tutorial.ResourceAndWriteException;
+import kr.co.mz.tutorial.RuntimeServletException;
 import kr.co.mz.tutorial.jdbc.dao.BoardCommentDao;
 import kr.co.mz.tutorial.jdbc.dao.BoardDao;
 import kr.co.mz.tutorial.jdbc.model.Board;
@@ -39,17 +39,15 @@ public class ContentForm extends HttpServlet {
         }
     }
 
-    private List<BoardComment> viewReplyAll(String customerId, int commentSeq, String content, int boardCommentSeq, int customerSeq, int boardSeq) {
-        if (boardCommentSeq != 0) {
-            var dataSource = (DataSource) getServletContext().getAttribute(DATASOURCE_CONTEXT_KEY);
-            try (var connection = dataSource.getConnection();) {
-                BoardCommentDao boardCommentDao = new BoardCommentDao(connection);
-                return boardCommentDao.viewReply(customerId, commentSeq, content, boardCommentSeq, customerSeq, boardSeq);
-            } catch (SQLException sqle) {
-                throw new DatabaseAccessException("데이터베이스 관련 처리에 오류가 발생하였습니다:" + sqle.getMessage(), sqle);
-            }
-        } else
-            return null;
+    private List<BoardComment> viewReplyAll(int seq, int boardCommentSeq, int boardSeq) {
+        var dataSource = (DataSource) getServletContext().getAttribute(DATASOURCE_CONTEXT_KEY);
+        try (var connection = dataSource.getConnection();) {
+            BoardCommentDao boardCommentDao = new BoardCommentDao(connection);
+            return boardCommentDao.viewReply(seq, boardCommentSeq, boardSeq);
+        } catch (SQLException sqle) {
+            throw new DatabaseAccessException("데이터베이스 관련 처리에 오류가 발생하였습니다:" + sqle.getMessage(), sqle);
+        }
+
     }
 
     private Board findOne(int boardSeq) {
@@ -78,7 +76,7 @@ public class ContentForm extends HttpServlet {
         try {
             out = response.getWriter();
         } catch (IOException ioe) {
-            throw new NetworkAndResponseException("1. 클라이언트와의 네트워크 연결이 끊김, 2. 응답이 이미 커밋됨, 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
+            throw new RuntimeServletException("1. 클라이언트와의 네트워크 연결이 끊김, 2. 응답이 이미 커밋됨, 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
         }
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -173,7 +171,7 @@ public class ContentForm extends HttpServlet {
             out.println("<p><strong>작성자:</strong> " + comment.getCustomerId() + "</p>");
             out.println("<p><strong>내용:</strong> " + comment.getContent() + "</p>");
 
-            List<BoardComment> replyList = viewReplyAll(comment.getCustomerId(), comment.getSeq(), comment.getContent(), comment.getBoardCommentSeq(), comment.getCustomerSeq(), comment.getBoardSeq());
+            List<BoardComment> replyList = viewReplyAll(comment.getSeq(), comment.getBoardCommentSeq(), comment.getBoardSeq());
             if (replyList != null) {
                 for (BoardComment reply : replyList) {
                     out.println("<div class=\"reply\">");
@@ -231,7 +229,6 @@ public class ContentForm extends HttpServlet {
         var customer = (Customer) request.getSession().getAttribute(CUSTOMER_IN_SESSION);
         int customerSeq = customer.getSeq();
         String commentContent = request.getParameter("commentContent");
-//  여기 만약 댓글이 달렸는데 대댓글이다?? --> contentformseq에 그 pk값 seq를 같이 insert
         validateInputParameter(commentContent);
 
         insertComment(commentContent, customerSeq, boardSeq, commentSeq);

@@ -1,15 +1,18 @@
-package kr.co.mz.tutorial.servlet;
+package kr.co.mz.tutorial.jdbc.servlet;
 
 import kr.co.mz.tutorial.DatabaseAccessException;
+import kr.co.mz.tutorial.EnctypeOrAnnotaionOrMemoryException;
 import kr.co.mz.tutorial.InputValidationException;
-import kr.co.mz.tutorial.NetworkAndResponseException;
+import kr.co.mz.tutorial.RuntimeServletException;
 import kr.co.mz.tutorial.jdbc.dao.BoardDao;
 import kr.co.mz.tutorial.jdbc.model.Board;
 import kr.co.mz.tutorial.jdbc.model.Customer;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -44,7 +47,7 @@ public class BoardForm extends HttpServlet {
         try {
             out = response.getWriter();
         } catch (IOException ioe) {
-            throw new NetworkAndResponseException("1. 클라이언트와의 네트워크 연결이 끊김, 2. 응답이 이미 커밋됨, 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
+            throw new RuntimeServletException("1. 클라이언트와의 네트워크 연결이 끊김, 2. 응답이 이미 커밋됨, 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
         }
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -125,12 +128,39 @@ public class BoardForm extends HttpServlet {
         }
     }
 
+
+    private String extractFileName(Part part) {
+        String contentDisposition = part.getHeader("content-disposition");
+        String[] elements = contentDisposition.split(";");
+
+        for (String element : elements) {
+            if (element.trim().startsWith("filename")) {
+                return element.substring(element.indexOf('=') + 1).trim().replace("\"", "");
+            }
+        }
+        return null;
+    }
+
     @Override
     protected void doPost(HttpServletRequest requset, HttpServletResponse response) {
         var customer = (Customer) requset.getSession().getAttribute(CUSTOMER_IN_SESSION);
         int customerSeq = customer.getSeq();
         String title = requset.getParameter("title");
         String content = requset.getParameter("content");
+        Part filePart;
+        String fileName = null;
+
+        try {
+            filePart = requset.getPart("file");
+        } catch (IOException ioe) {
+            throw new RuntimeServletException("1. 클라이언트와의 네트워크 연결이 끊김 2. 응답이 이미 커밋됨 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
+        } catch (ServletException e) {
+            throw new EnctypeOrAnnotaionOrMemoryException("1. enctype을 확인해주세요 2. @MultipartConfig 3. 메모리나 디스크 공간 부족" + e.getMessage(), e);
+        }
+        System.out.println(filePart);
+        if (filePart != null) {
+            fileName = extractFileName(filePart);
+        }
         ArrayList<Board> boardData;
 
         validateInputParameter(title, content);
@@ -143,7 +173,7 @@ public class BoardForm extends HttpServlet {
         try {
             out = response.getWriter();
         } catch (IOException ioe) {
-            throw new NetworkAndResponseException("1. 클라이언트와의 네트워크 연결이 끊김, 2. 응답이 이미 커밋됨, 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
+            throw new RuntimeServletException("1. 클라이언트와의 네트워크 연결이 끊김, 2. 응답이 이미 커밋됨, 3. 응답 버퍼가 이미 비워짐" + ioe.getMessage(), ioe);
         }
         out.println("<!DOCTYPE html>");
         out.println("<html>");
@@ -181,6 +211,7 @@ public class BoardForm extends HttpServlet {
         out.println("<th>글쓴이</th>");
         out.println("<th>제목</th>");
         out.println("<th>추천수</th>");
+        out.println("<th>첨부파일명</th>");
         out.println("<th>생성시간</th>");
         out.println("<th>수정시간</th>");
         out.println("</tr>");
@@ -190,6 +221,7 @@ public class BoardForm extends HttpServlet {
             out.println("<td>" + board.getCustomerId() + "</td>");
             out.println("<td><a href=\"/posts/?id=" + board.getSeq() + "\">" + board.getTitle() + "</a></td>");
             out.println("<td>" + board.getEvaluationTotal() + "</td>");
+            out.println("<td>" + fileName + "</td>");
             out.println("<td>" + board.getCreatedTime() + "</td>");
             out.println("<td>" + board.getModifiedTime() + "</td>");
             out.println("</tr>");

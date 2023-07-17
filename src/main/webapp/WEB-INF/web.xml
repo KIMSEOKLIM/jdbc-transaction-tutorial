@@ -6,7 +6,7 @@
 
     <servlet>
         <servlet-name>LoginForm</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.LoginServlet</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.jdbc.servlet.LoginServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -16,7 +16,7 @@
 
     <servlet>
         <servlet-name>JoinForm</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.JoinServlet</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.jdbc.servlet.JoinServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -36,7 +36,16 @@
 
     <servlet>
         <servlet-name>BoardForm</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.BoardForm</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.jdbc.servlet.BoardForm</servlet-class>
+
+        <multipart-config>
+            <!--                <location>/path/to/temp/directory</location>-->
+            <max-file-size>1048576</max-file-size> <!-- 1MB -->
+            <max-request-size>2097152</max-request-size> <!-- 2MB -->
+            <file-size-threshold>524288</file-size-threshold> <!-- 0.5MB -->
+        </multipart-config>
+
+
     </servlet>
 
     <servlet-mapping>
@@ -46,7 +55,7 @@
 
     <servlet>
         <servlet-name>ContentForm</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.ContentForm</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.jdbc.servlet.ContentForm</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -56,7 +65,7 @@
 
     <servlet>
         <servlet-name>WriteBoard</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.WriteBoardServlet</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.jdbc.servlet.WriteBoardServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -66,7 +75,7 @@
 
     <servlet>
         <servlet-name>Evaluation</servlet-name>
-        <servlet-class>kr.co.mz.tutorial.servlet.EvaluationServlet</servlet-class>
+        <servlet-class>kr.co.mz.tutorial.jdbc.servlet.EvaluationServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

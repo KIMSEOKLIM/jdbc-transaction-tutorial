@@ -34,6 +34,22 @@ public class BoardEvaluationDao {
 
     }
 
+    public int insertWhenNotExists(int customerSeq, int boardSeq) throws SQLException {
+        var preparedStatement = connection.prepareStatement("""
+                                INSERT INTO board_evaluation (customer_seq, board_seq)
+                                SELECT * FROM (SELECT ?, ?) AS tmp
+                                WHERE NOT EXISTS (
+                                    SELECT 1 FROM board_evaluation
+                                    WHERE customer_seq = ? AND board_seq = ?
+                                )
+                """);
+        preparedStatement.setInt(1, customerSeq);
+        preparedStatement.setInt(2, boardSeq);
+        preparedStatement.setInt(3, customerSeq);
+        preparedStatement.setInt(4, boardSeq);
+        return preparedStatement.executeUpdate();
+    }
+
     public void update(int boardSeq) throws SQLException {
         var preparedStatementEva = connection.prepareStatement(UPDATE_EVALUATION_QUERY);
         preparedStatementEva.setInt(1, boardSeq);
